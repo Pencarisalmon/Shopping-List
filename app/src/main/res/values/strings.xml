@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Shopping List</string>
+    <string name="logo_icon">Logo Icon</string>
+    <string name="catat_dan_atur_belanjaan_mu_agar_lebih_mudah">Catat dan Atur Belanjaan-mu agar lebih mudah</string>
+    <string name="selamat_datang_di_belanjaku">Selamat Datang di BelanjaKu</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="tanggal_lahir">Tanggal Lahir</string>
+    <string name="nama_lengkap">Nama Lengkap</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="konfirmasi_password">Konfirmasi Password</string>
+    <string name="daftar">Daftar</string>
+    <string name="masuk">Masuk</string>
 </resources>
