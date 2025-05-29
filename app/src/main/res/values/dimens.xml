@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_default">16dp</dimen>
+    <dimen name="padding_input_horizontal">16dp</dimen>
+    <dimen name="padding_input_vertical">12dp</dimen>
+    <dimen name="corner_radius_default">8dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="button_height">50dp</dimen>
+</resources>
+
+    

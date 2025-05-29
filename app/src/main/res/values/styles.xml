@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/margin_default</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginEnd">@dimen/margin_default</item>
+        <item name="android:background">@drawable/rounded_edittext_background</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:textColorHint">#555</item>
+        <item name="android:paddingStart">@dimen/padding_input_horizontal</item>
+        <item name="android:paddingTop">@dimen/padding_input_vertical</item>
+        <item name="android:paddingEnd">@dimen/padding_input_horizontal</item>
+        <item name="android:paddingBottom">@dimen/padding_input_vertical</item>
+        <item name="android:importantForAutofill">no</item>
+    </style>
+</resources>
