@@ -1,6 +1,7 @@
 package com.kelompok9PBP.ShoppingList.Activity;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,22 +15,39 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.kelompok9PBP.ShoppingList.MainActivity;
 import com.kelompok9PBP.ShoppingList.R;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegisterLogin extends AppCompatActivity {
-    private final Boolean isRegister = true;
+    private boolean isRegister = true;
     private View registerTabIndicator, loginTabIndicator;
     private LinearLayout registerTab, loginTab, layoutRegister, layoutLogin;
     private Button btnForm;
     private EditText etName, etRegisterEmail, etTanggal, etRegisterPassword, etConfirmPassword, etLoginEmail, etLoginPassword;
 
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Intent intent = new Intent(RegisterLogin.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register_login);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -37,13 +55,17 @@ public class RegisterLogin extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        initViews();
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        initViews();
         setupListeners();
     }
 
     private void setupListeners() {
         registerTab.setOnClickListener(v -> {
+            isRegister = true;
             registerTabIndicator.setVisibility(View.VISIBLE);
             loginTabIndicator.setVisibility(View.INVISIBLE);
             layoutRegister.setVisibility(View.VISIBLE);
@@ -51,9 +73,9 @@ public class RegisterLogin extends AppCompatActivity {
             btnForm.setText(R.string.daftar);
             clearLoginFields();
         });
-        etTanggal.setOnClickListener(v -> showDatePicker());
 
         loginTab.setOnClickListener(v -> {
+            isRegister = false;
             loginTabIndicator.setVisibility(View.VISIBLE);
             registerTabIndicator.setVisibility(View.INVISIBLE);
             layoutLogin.setVisibility(View.VISIBLE);
@@ -61,6 +83,9 @@ public class RegisterLogin extends AppCompatActivity {
             btnForm.setText(R.string.masuk);
             clearRegisterFields();
         });
+
+        etTanggal.setOnClickListener(v -> showDatePicker());
+
         btnForm.setOnClickListener(v -> {
             if (isRegister) {
                 registerData();
@@ -84,37 +109,133 @@ public class RegisterLogin extends AppCompatActivity {
     }
 
     private void loginData() {
-        etLoginEmail.setError(null);
-        etLoginPassword.setError(null);
         String email = etLoginEmail.getText().toString().trim();
         String password = etLoginPassword.getText().toString().trim();
 
-        boolean isValid = true;
-
         if (email.isEmpty()) {
             etLoginEmail.setError("Email harus diisi!");
-            isValid = false;
-        } else if (isValidEmail(email)) {
-            etLoginEmail.setError("Format email tidak valid!");
-            isValid = false;
+            etLoginEmail.requestFocus();
+            return;
         }
+
+        if (!isEmailFormatValid(email)) {
+            etLoginEmail.setError("Format email tidak valid!");
+            etLoginEmail.requestFocus();
+            return;
+        }
+
         if (password.isEmpty()) {
             etLoginPassword.setError("Password harus diisi!");
-            isValid = false;
-        } else if (password.length() < 6) {
-            etLoginPassword.setError("Password minimal 6 karakter!");
-            isValid = false;
+            etLoginPassword.requestFocus();
+            return;
         }
 
-        if (isValid) {
-            Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show();
-            //TODO: kirim data register
-        } else {
-            if (email.isEmpty() || isValidEmail(email)) etLoginEmail.requestFocus();
-            else if (password.isEmpty() || password.length() < 6) etLoginPassword.requestFocus();
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(RegisterLogin.this, "Login berhasil!", Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(this, "Periksa kembali input Anda.", Toast.LENGTH_SHORT).show();
+                        // Setelah login berhasil, pindah ke MainActivity
+                        Intent intent = new Intent(RegisterLogin.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();  // supaya user gak bisa balik ke halaman login/register pakai back button
+                    } else {
+                        Toast.makeText(RegisterLogin.this, "Login gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void registerData() {
+        String nama = etName.getText().toString().trim();
+        String tanggal = etTanggal.getText().toString().trim();
+        String email = etRegisterEmail.getText().toString().trim();
+        String password = etRegisterPassword.getText().toString().trim();
+        String konfirmasiPassword = etConfirmPassword.getText().toString().trim();
+
+        if (nama.isEmpty()) {
+            etName.setError("Nama lengkap harus diisi!");
+            etName.requestFocus();
+            return;
         }
+
+        if (tanggal.isEmpty()) {
+            etTanggal.setError("Tanggal lahir harus diisi!");
+            etTanggal.requestFocus();
+            return;
+        }
+
+        if (email.isEmpty()) {
+            etRegisterEmail.setError("Email harus diisi!");
+            etRegisterEmail.requestFocus();
+            return;
+        }
+
+        if (!isEmailFormatValid(email)) {
+            etRegisterEmail.setError("Format email tidak valid!");
+            etRegisterEmail.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            etRegisterPassword.setError("Password harus diisi!");
+            etRegisterPassword.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            etRegisterPassword.setError("Password minimal 6 karakter!");
+            etRegisterPassword.requestFocus();
+            return;
+        }
+
+        if (!password.equals(konfirmasiPassword)) {
+            etConfirmPassword.setError("Password dan konfirmasi tidak cocok!");
+            etConfirmPassword.requestFocus();
+            return;
+        }
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("uid", user.getUid());
+                        userMap.put("nama", nama);
+                        userMap.put("tanggal_lahir", tanggal);
+                        userMap.put("email", email);
+
+                        FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(user.getUid())
+                                .set(userMap)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(RegisterLogin.this, "Registrasi berhasil, silakan login!", Toast.LENGTH_SHORT).show();
+
+                                    // Setelah berhasil simpan data, pindah ke tab login
+                                    isRegister = false;
+                                    loginTabIndicator.setVisibility(View.VISIBLE);
+                                    registerTabIndicator.setVisibility(View.INVISIBLE);
+                                    layoutLogin.setVisibility(View.VISIBLE);
+                                    layoutRegister.setVisibility(View.GONE);
+                                    btnForm.setText(R.string.masuk);
+                                    clearRegisterFields();
+                                    clearLoginFields();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(RegisterLogin.this, "Gagal menyimpan data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+
+                    } else {
+                        Toast.makeText(RegisterLogin.this, "Registrasi gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private boolean isEmailFormatValid(String email) {
+        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 
     private void showDatePicker() {
@@ -130,73 +251,6 @@ public class RegisterLogin extends AppCompatActivity {
                 }, year, month, day);
         datePickerDialog.show();
     }
-
-    private void registerData() {
-        etName.setError(null);
-        etTanggal.setError(null);
-        etRegisterEmail.setError(null);
-        etRegisterPassword.setError(null);
-        etConfirmPassword.setError(null);
-        String nama = etName.getText().toString().trim();
-        String tanggal = etTanggal.getText().toString().trim();
-        String email = etRegisterEmail.getText().toString().trim();
-        String password = etRegisterPassword.getText().toString().trim();
-        String konfirmasiPassword = etConfirmPassword.getText().toString().trim();
-
-        boolean isValid = true;
-
-        if (nama.isEmpty()) {
-            etName.setError("Nama lengkap harus diisi!");
-            isValid = false;
-        }
-        if (tanggal.isEmpty()) {
-            etTanggal.setError("Tanggal lahir harus diisi!");
-            isValid = false;
-        }
-        if (email.isEmpty()) {
-            etRegisterEmail.setError("Email harus diisi!");
-            isValid = false;
-
-        } else if (isValidEmail(email)) {
-            etRegisterEmail.setError("Format email tidak valid!");
-            isValid = false;
-        }
-        if (password.isEmpty()) {
-            etRegisterPassword.setError("Password harus diisi!");
-            isValid = false;
-        } else if (password.length() < 6) {
-            etRegisterPassword.setError("Password minimal 6 karakter!");
-            isValid = false;
-        }
-        if (konfirmasiPassword.isEmpty()) {
-            etConfirmPassword.setError("Konfirmasi password harus diisi!");
-            isValid = false;
-        } else if (!password.equals(konfirmasiPassword)) {
-            etConfirmPassword.setError("Password dan Konfirmasi Password tidak cocok!");
-            isValid = false;
-        }
-
-        if (isValid) {
-            Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show();
-            //TODO: kirim data register
-        } else {
-            if (nama.isEmpty()) etName.requestFocus();
-            else if (tanggal.isEmpty()) etTanggal.requestFocus();
-            else if (email.isEmpty() || isValidEmail(email)) etRegisterEmail.requestFocus();
-            else if (password.isEmpty() || password.length() < 6) etRegisterPassword.requestFocus();
-            else if (konfirmasiPassword.isEmpty() || !password.equals(konfirmasiPassword))
-                etConfirmPassword.requestFocus();
-
-            Toast.makeText(this, "Periksa kembali input Anda.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private boolean isValidEmail(String email) {
-        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
-        Matcher matcher = pattern.matcher(email);
-        return !matcher.matches();
-    }
-
 
     private void initViews() {
         registerTab = findViewById(R.id.register_tab);

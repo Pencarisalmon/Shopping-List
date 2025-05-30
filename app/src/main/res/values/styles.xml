@@ -16,4 +16,10 @@
         <item name="android:paddingBottom">@dimen/padding_input_vertical</item>
         <item name="android:importantForAutofill">no</item>
     </style>
+
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/transparent</item>
+        <item name="itemRippleColor">@color/transparent</item>
+    </style>
+
 </resources>
