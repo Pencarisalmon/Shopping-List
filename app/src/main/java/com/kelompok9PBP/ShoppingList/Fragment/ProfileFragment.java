@@ -4,21 +4,33 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.kelompok9PBP.ShoppingList.Activity.EditProfileActivity;
 import com.kelompok9PBP.ShoppingList.Activity.RegisterLogin;
 import com.kelompok9PBP.ShoppingList.R;
 
+import com.google.android.material.button.MaterialButton;
+
 public class ProfileFragment extends Fragment {
 
-    private Button btnLogout;
+    private TableRow trLogout;
+    private TextView tvName, tvEmail, tvDob;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
+
+    // Cache data supaya gak delay tiap pindah fragment
+    private String cachedName = null;
+    private String cachedEmail = null;
+    private String cachedDob = null;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -27,23 +39,67 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        btnLogout = view.findViewById(R.id.btn_logout);
-        btnLogout.setOnClickListener(v -> {
-            // Logout dari Firebase
-            FirebaseAuth.getInstance().signOut();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-            // Intent pindah ke halaman login
+        trLogout = view.findViewById(R.id.tr_logout);
+        tvName = view.findViewById(R.id.tvName);
+        tvEmail = view.findViewById(R.id.tvEmail);
+        tvDob = view.findViewById(R.id.tvDob);
+
+        MaterialButton btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnEditProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+            startActivity(intent);
+        });
+
+        // Kalau data sudah ada di cache, langsung tampilkan dulu
+        if (cachedName != null && cachedEmail != null && cachedDob != null) {
+            tvName.setText(cachedName);
+            tvEmail.setText(cachedEmail);
+            tvDob.setText(cachedDob);
+        } else {
+            loadDataFromFirestore();
+        }
+
+        trLogout.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(getActivity(), RegisterLogin.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-
-            // Tutup activity sekarang biar gak bisa back ke profile
             getActivity().finish();
         });
 
         return view;
     }
+
+    private void loadDataFromFirestore() {
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        cachedName = documentSnapshot.getString("nama");
+                        cachedEmail = documentSnapshot.getString("email");
+                        cachedDob = documentSnapshot.getString("tanggal_lahir");
+
+                        tvName.setText(cachedName);
+                        tvEmail.setText(cachedEmail);
+                        tvDob.setText("🎂 " + cachedDob);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    tvName.setText("Gagal ambil data");
+                    tvEmail.setText("-");
+                    tvDob.setText("-");
+                });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadDataFromFirestore(); // Selalu reload data dari Firestore pas Fragment muncul lagi
+    }
+
 }
