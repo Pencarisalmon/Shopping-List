@@ -11,8 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kelompok9PBP.ShoppingList.R;
+import com.kelompok9PBP.ShoppingList.data.firestore.FirestoreHelper;
 import com.kelompok9PBP.ShoppingList.data.model.Barang;
 
 /**
@@ -25,6 +27,7 @@ public class DetailBarangFragment extends Fragment {
     private TextView tvNama, tvJumlah, tvHarga, tvKategori, tvWaktu, tvStatus;
     private Button btnEdit, btnHapus;
     private Barang barang;
+    private FirestoreHelper firestoreHelper;
 
     public DetailBarangFragment() {}
 
@@ -55,12 +58,14 @@ public class DetailBarangFragment extends Fragment {
         btnEdit = view.findViewById(R.id.btnEdit);
         btnHapus = view.findViewById(R.id.btnHapus);
 
+        firestoreHelper = new FirestoreHelper();
+
         if (getArguments() != null) {
             barang = (Barang) getArguments().getSerializable("barang");
 
             tvNama.setText(barang.getNamaBarang());
-            tvJumlah.setText(barang.getJumlah());
-            tvHarga.setText(barang.getHargaSatuan());
+            tvJumlah.setText(String.valueOf(barang.getJumlah()));
+            tvHarga.setText(String.valueOf(barang.getHargaSatuan()));
             tvKategori.setText(barang.getKategori());
             tvWaktu.setText(barang.getWaktuBelanja());
 //            tvStatus.setText(barang.isPending() ? "Belum dibeli" : "Sudah dibeli");
@@ -71,7 +76,18 @@ public class DetailBarangFragment extends Fragment {
         });
 
         btnHapus.setOnClickListener(v -> {
-            // Nanti tambahin logic hapus
+            firestoreHelper.deleteBarang(barang.getId(), new FirestoreHelper.DeleteCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(getContext(), "Barang berhasil dihapus", Toast.LENGTH_SHORT).show();
+                    requireActivity().getSupportFragmentManager().popBackStack(); // balik ke list
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Gagal hapus barang: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
