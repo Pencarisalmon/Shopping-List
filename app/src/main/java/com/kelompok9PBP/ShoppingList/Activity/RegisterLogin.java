@@ -32,8 +32,6 @@ public class RegisterLogin extends AppCompatActivity {
     private Button btnForm;
     private EditText etName, etRegisterEmail, etTanggal, etRegisterPassword, etConfirmPassword, etLoginEmail, etLoginPassword;
 
-    private FirebaseAuth mAuth;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
