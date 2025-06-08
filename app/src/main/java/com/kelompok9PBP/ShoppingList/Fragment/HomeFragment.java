@@ -63,7 +63,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void ambilDataBarang() {
-        firestoreHelper.getUserBarang(new FirestoreHelper.BarangCallback() {
+        firestoreHelper.getUserBarangPending(true, new FirestoreHelper.BarangCallback() {
             @Override
             public void onSuccess(List<Barang> barangListDariRepo) {
                 barangList.clear();

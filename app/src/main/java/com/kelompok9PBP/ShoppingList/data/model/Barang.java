@@ -12,7 +12,7 @@ public class Barang implements Serializable {
     private String namaBarang;
 
     private int jumlah;
-    private int hargaSatuan;
+    private double hargaSatuan;
     private String kategori;
     private String waktuBelanja;
     private boolean pending;
@@ -40,7 +40,7 @@ public class Barang implements Serializable {
         this.jumlah = jumlah;
     }
 
-    public void setHargaSatuan(int hargaSatuan) {
+    public void setHargaSatuan(double hargaSatuan) {
         this.hargaSatuan = hargaSatuan;
     }
 
@@ -61,7 +61,7 @@ public class Barang implements Serializable {
     }
     public String getNamaBarang() { return namaBarang; }
     public int getJumlah() { return jumlah; }
-    public int getHargaSatuan() { return hargaSatuan; }
+    public double getHargaSatuan() { return hargaSatuan; }
     public String getKategori() { return kategori; }
     public String getWaktuBelanja() { return waktuBelanja; }
     public boolean isPending() { return pending; }
