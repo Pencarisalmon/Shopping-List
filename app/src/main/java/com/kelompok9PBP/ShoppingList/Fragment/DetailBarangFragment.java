@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class DetailBarangFragment extends Fragment {
     private Button btnEdit, btnHapus, btnTandaiDibeli;
     private Barang barang;
     private FirestoreHelper firestoreHelper;
+    private ImageView ivBack;
 
     public DetailBarangFragment() {}
 
@@ -48,6 +50,8 @@ public class DetailBarangFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ivBack = view.findViewById(R.id.ivBack);
+        ivBack.setOnClickListener(v -> requireActivity().onBackPressed());
 
         tvNama = view.findViewById(R.id.tvNamaDetail);
         tvJumlah = view.findViewById(R.id.tvJumlahDetail);
