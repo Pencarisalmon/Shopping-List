@@ -25,7 +25,7 @@ import com.kelompok9PBP.ShoppingList.data.model.Barang;
 public class DetailBarangFragment extends Fragment {
 
     private TextView tvNama, tvJumlah, tvHarga, tvKategori, tvWaktu, tvStatus;
-    private Button btnEdit, btnHapus;
+    private Button btnEdit, btnHapus, btnTandaiDibeli;
     private Barang barang;
     private FirestoreHelper firestoreHelper;
 
@@ -54,7 +54,7 @@ public class DetailBarangFragment extends Fragment {
         tvHarga = view.findViewById(R.id.tvHargaDetail);
         tvKategori = view.findViewById(R.id.tvKategoriDetail);
         tvWaktu = view.findViewById(R.id.tvWaktuDetail);
-//        tvStatus = view.findViewById(R.id.tvStatusDetail);
+        btnTandaiDibeli = view.findViewById(R.id.btnTandaiDibeli);
         btnEdit = view.findViewById(R.id.btnEdit);
         btnHapus = view.findViewById(R.id.btnHapus);
 
@@ -72,7 +72,12 @@ public class DetailBarangFragment extends Fragment {
         }
 
         btnEdit.setOnClickListener(v -> {
-            // Nanti tambahin logic edit
+            Fragment editFragment = EditBarangFragment.newInstance(barang); // Objek Barang yang sedang tampil
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.host_fragment, editFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnHapus.setOnClickListener(v -> {
@@ -89,6 +94,25 @@ public class DetailBarangFragment extends Fragment {
                 }
             });
         });
+
+        btnTandaiDibeli.setOnClickListener(v -> {
+            barang.setPending(false); // Ubah status ke "Sudah dibeli"
+
+            firestoreHelper.updateBarang(barang, new FirestoreHelper.UpdateCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(getContext(), "Barang ditandai sudah dibeli", Toast.LENGTH_SHORT).show();
+                    // Optional: Update tampilan atau balik ke list
+                    requireActivity().getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "Gagal tandai dibeli: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
     }
 
     @Override

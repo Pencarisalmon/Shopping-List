@@ -25,11 +25,13 @@ public class FirestoreHelper {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
+
     public interface BarangCallback {
         void onSuccess(List<Barang> barangList);
         void onFailure(Exception e);
     }
 
+    //Untuk GET ALL BARANG
     public void getUserBarang(BarangCallback callback) {
 
         if (currentUser == null) {
@@ -48,6 +50,39 @@ public class FirestoreHelper {
                         Barang barang = doc.toObject(Barang.class);
                         if (barang != null) {
                             barang.setId(doc.getId());
+
+
+                            barangList.add(barang);
+                        }
+                    }
+                    callback.onSuccess(barangList);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+//    Untuk GET BARANG BASED ON PENDING
+
+    public void getUserBarangPending(boolean pending, BarangCallback callback) {
+
+        if (currentUser == null) {
+            callback.onFailure(new Exception("User belum login"));
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        db.collection("users")
+                .document(userId)
+                .collection("shopping_items")
+                .whereEqualTo("pending", pending)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Barang> barangList = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        Barang barang = doc.toObject(Barang.class);
+                        if (barang != null) {
+                            barang.setId(doc.getId());
+
+
                             barangList.add(barang);
                         }
                     }
@@ -75,6 +110,34 @@ public class FirestoreHelper {
                 .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
+
+    public interface UpdateCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    public void updateBarang(Barang barang, UpdateCallback callback) {
+        if (currentUser == null) {
+            callback.onFailure(new Exception("User belum login"));
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        String barangId = barang.getId();
+        if (barangId == null) {
+            callback.onFailure(new Exception("Barang ID tidak boleh null"));
+            return;
+        }
+
+        db.collection("users")
+                .document(userId)
+                .collection("shopping_items")
+                .document(barangId)
+                .set(barang)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
     // Contoh method ambil collection reference
     public CollectionReference getCollection(String collectionName) {
