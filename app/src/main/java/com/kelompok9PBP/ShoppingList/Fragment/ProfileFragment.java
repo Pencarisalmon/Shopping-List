@@ -13,7 +13,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kelompok9PBP.ShoppingList.Activity.EditProfileActivity;
 import com.kelompok9PBP.ShoppingList.Activity.RegisterLogin;
 import com.kelompok9PBP.ShoppingList.R;

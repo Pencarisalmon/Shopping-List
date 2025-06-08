@@ -49,17 +49,19 @@ public class EditProfileActivity extends AppCompatActivity {
         etNama = findViewById(R.id.editTextNamaBarang);
         etTanggal = findViewById(R.id.editTextWaktuBelanja);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
-        db = FirebaseFirestore.getInstance();
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        firestoreHelper = new FirestoreHelper();
+
         // Ambil data user dari Firestore
-        db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                etNama.setText(doc.getString("nama"));
-                etTanggal.setText(doc.getString("tanggal_lahir"));
-            }
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Gagal mengambil data", Toast.LENGTH_SHORT).show()
+        firestoreHelper.getUserProfile(
+                doc -> {
+                    if (doc.exists()) {
+                        etNama.setText(doc.getString("nama"));
+                        etTanggal.setText(doc.getString("tanggal_lahir"));
+                    }
+                },
+                e -> Toast.makeText(this, "Gagal mengambil data", Toast.LENGTH_SHORT).show()
         );
 
         // Tanggal: buka DatePicker

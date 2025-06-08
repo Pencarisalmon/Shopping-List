@@ -2,7 +2,6 @@ package com.kelompok9PBP.ShoppingList.data.auth;
 
 import android.app.Activity;
 import android.content.Context;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

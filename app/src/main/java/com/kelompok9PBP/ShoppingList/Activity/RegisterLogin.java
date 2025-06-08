@@ -16,15 +16,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.kelompok9PBP.ShoppingList.MainActivity;
 import com.kelompok9PBP.ShoppingList.R;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kelompok9PBP.ShoppingList.data.auth.AuthHelper;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
@@ -57,9 +52,6 @@ public class RegisterLogin extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         initViews();
         setupListeners();
