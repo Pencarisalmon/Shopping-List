@@ -47,11 +47,32 @@ public class FirestoreHelper {
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         Barang barang = doc.toObject(Barang.class);
                         if (barang != null) {
+                            barang.setId(doc.getId());
                             barangList.add(barang);
                         }
                     }
                     callback.onSuccess(barangList);
                 })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface DeleteCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+    public void deleteBarang(String barangId, DeleteCallback callback) {
+        if (currentUser == null) {
+            callback.onFailure(new Exception("User belum login"));
+            return;
+        }
+
+        String userId = currentUser.getUid();
+        db.collection("users")
+                .document(userId)
+                .collection("shopping_items")
+                .document(barangId)
+                .delete()
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
                 .addOnFailureListener(callback::onFailure);
     }
 

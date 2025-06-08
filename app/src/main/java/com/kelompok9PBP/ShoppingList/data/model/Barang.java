@@ -8,7 +8,9 @@ import java.io.Serializable;
 @IgnoreExtraProperties // Opsional: Abaikan properti ekstra di Firestore yang tidak ada di kelas ini
 
 public class Barang implements Serializable {
+    private String id;
     private String namaBarang;
+
     private int jumlah;
     private int hargaSatuan;
     private String kategori;
@@ -27,6 +29,10 @@ public class Barang implements Serializable {
 //        this.waktu_belanja = waktu_belanja;
 //        this.pending = pending;
 //    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
     public void setNamaBarang(String namaBarang) {
         this.namaBarang = namaBarang;
     }
@@ -48,6 +54,10 @@ public class Barang implements Serializable {
 
     public void setPending(boolean pending) {
         this.pending = pending;
+    }
+
+    public String getId() {
+        return id;
     }
     public String getNamaBarang() { return namaBarang; }
     public int getJumlah() { return jumlah; }
