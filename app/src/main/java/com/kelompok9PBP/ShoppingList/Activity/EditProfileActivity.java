@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kelompok9PBP.ShoppingList.R;
+import com.kelompok9PBP.ShoppingList.data.firestore.FirestoreHelper;
 
 import java.util.Calendar;
 
@@ -26,6 +27,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String uid;
     private ImageView ivBack;
+    private FirestoreHelper firestoreHelper;
 
 
     @Override
@@ -47,17 +49,19 @@ public class EditProfileActivity extends AppCompatActivity {
         etNama = findViewById(R.id.editTextNamaBarang);
         etTanggal = findViewById(R.id.editTextWaktuBelanja);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
-        db = FirebaseFirestore.getInstance();
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        firestoreHelper = new FirestoreHelper();
+
         // Ambil data user dari Firestore
-        db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                etNama.setText(doc.getString("nama"));
-                etTanggal.setText(doc.getString("tanggal_lahir"));
-            }
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Gagal mengambil data", Toast.LENGTH_SHORT).show()
+        firestoreHelper.getUserProfile(
+                doc -> {
+                    if (doc.exists()) {
+                        etNama.setText(doc.getString("nama"));
+                        etTanggal.setText(doc.getString("tanggal_lahir"));
+                    }
+                },
+                e -> Toast.makeText(this, "Gagal mengambil data", Toast.LENGTH_SHORT).show()
         );
 
         // Tanggal: buka DatePicker
@@ -83,15 +87,20 @@ public class EditProfileActivity extends AppCompatActivity {
             String namaBaru = etNama.getText().toString();
             String tanggalBaru = etTanggal.getText().toString();
 
-            db.collection("users").document(uid)
-                    .update("nama", namaBaru, "tanggal_lahir", tanggalBaru)
-                    .addOnSuccessListener(unused -> {
+            if (namaBaru.isEmpty() || tanggalBaru.isEmpty()) {
+                Toast.makeText(this, "Nama atau tanggal tidak boleh kosong", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            firestoreHelper.updateUserProfile(
+                    namaBaru,
+                    tanggalBaru,
+                    unused -> {
                         Toast.makeText(this, "Profil berhasil diperbarui", Toast.LENGTH_SHORT).show();
                         finish();
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Gagal memperbarui profil", Toast.LENGTH_SHORT).show()
-                    );
+                    },
+                    e -> Toast.makeText(this, "Gagal memperbarui profil", Toast.LENGTH_SHORT).show()
+            );
         });
     }
 }

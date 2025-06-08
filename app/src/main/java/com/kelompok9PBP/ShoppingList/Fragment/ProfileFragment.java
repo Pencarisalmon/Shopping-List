@@ -13,10 +13,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kelompok9PBP.ShoppingList.Activity.EditProfileActivity;
 import com.kelompok9PBP.ShoppingList.Activity.RegisterLogin;
 import com.kelompok9PBP.ShoppingList.R;
+
+import com.kelompok9PBP.ShoppingList.data.firestore.FirestoreHelper;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -24,10 +25,7 @@ public class ProfileFragment extends Fragment {
 
     private TableRow trLogout;
     private TextView tvName, tvEmail, tvDob;
-    private FirebaseAuth auth;
-    private FirebaseFirestore db;
-
-    // Cache data supaya gak delay tiap pindah fragment
+    private final FirestoreHelper firestoreHelper = new FirestoreHelper();
     private String cachedName = null;
     private String cachedEmail = null;
     private String cachedDob = null;
@@ -40,9 +38,6 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
 
         trLogout = view.findViewById(R.id.tr_logout);
         tvName = view.findViewById(R.id.tvName);
@@ -76,24 +71,21 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadDataFromFirestore() {
-        String uid = auth.getCurrentUser().getUid();
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        cachedName = documentSnapshot.getString("nama");
-                        cachedEmail = documentSnapshot.getString("email");
-                        cachedDob = documentSnapshot.getString("tanggal_lahir");
+        firestoreHelper.getUserProfile(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                cachedName = documentSnapshot.getString("nama");
+                cachedEmail = documentSnapshot.getString("email");
+                cachedDob = documentSnapshot.getString("tanggal_lahir");
 
-                        tvName.setText(cachedName);
-                        tvEmail.setText(cachedEmail);
-                        tvDob.setText("🎂 " + cachedDob);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    tvName.setText("Gagal ambil data");
-                    tvEmail.setText("-");
-                    tvDob.setText("-");
-                });
+                tvName.setText(cachedName);
+                tvEmail.setText(cachedEmail);
+                tvDob.setText("🎂 " + cachedDob);
+            }
+        }, e -> {
+            tvName.setText("Gagal ambil data");
+            tvEmail.setText("-");
+            tvDob.setText("-");
+        });
     }
 
     @Override

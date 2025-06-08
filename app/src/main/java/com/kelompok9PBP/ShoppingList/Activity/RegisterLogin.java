@@ -16,13 +16,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.kelompok9PBP.ShoppingList.MainActivity;
 import com.kelompok9PBP.ShoppingList.R;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.HashMap;
-import java.util.Map;
+import com.kelompok9PBP.ShoppingList.data.auth.AuthHelper;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
@@ -34,8 +31,6 @@ public class RegisterLogin extends AppCompatActivity {
     private LinearLayout registerTab, loginTab, layoutRegister, layoutLogin;
     private Button btnForm;
     private EditText etName, etRegisterEmail, etTanggal, etRegisterPassword, etConfirmPassword, etLoginEmail, etLoginPassword;
-
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +50,6 @@ public class RegisterLogin extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         initViews();
         setupListeners();
@@ -130,19 +122,20 @@ public class RegisterLogin extends AppCompatActivity {
             return;
         }
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(RegisterLogin.this, "Login berhasil!", Toast.LENGTH_SHORT).show();
+        AuthHelper authHelper = new AuthHelper(this);
+        authHelper.loginUser(email, password, new AuthHelper.LoginCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(RegisterLogin.this, "Login berhasil!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterLogin.this, MainActivity.class));
+                finish();
+            }
 
-                        // Setelah login berhasil, pindah ke MainActivity
-                        Intent intent = new Intent(RegisterLogin.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();  // supaya user gak bisa balik ke halaman login/register pakai back button
-                    } else {
-                        Toast.makeText(RegisterLogin.this, "Login gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(RegisterLogin.this, "Login gagal: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void registerData() {
@@ -194,42 +187,27 @@ public class RegisterLogin extends AppCompatActivity {
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
+        AuthHelper authHelper = new AuthHelper(this);
+        authHelper.registerUser(nama, tanggal, email, password, new AuthHelper.RegisterCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(RegisterLogin.this, "Registrasi berhasil. Silakan login.", Toast.LENGTH_SHORT).show();
+                // Beralih ke form login
+                isRegister = false;
+                loginTabIndicator.setVisibility(View.VISIBLE);
+                registerTabIndicator.setVisibility(View.INVISIBLE);
+                layoutLogin.setVisibility(View.VISIBLE);
+                layoutRegister.setVisibility(View.GONE);
+                btnForm.setText(R.string.masuk);
+                clearRegisterFields();
+                clearLoginFields();
+            }
 
-                        Map<String, Object> userMap = new HashMap<>();
-                        userMap.put("uid", user.getUid());
-                        userMap.put("nama", nama);
-                        userMap.put("tanggal_lahir", tanggal);
-                        userMap.put("email", email);
-
-                        FirebaseFirestore.getInstance()
-                                .collection("users")
-                                .document(user.getUid())
-                                .set(userMap)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(RegisterLogin.this, "Registrasi berhasil, silakan login!", Toast.LENGTH_SHORT).show();
-
-                                    // Setelah berhasil simpan data, pindah ke tab login
-                                    isRegister = false;
-                                    loginTabIndicator.setVisibility(View.VISIBLE);
-                                    registerTabIndicator.setVisibility(View.INVISIBLE);
-                                    layoutLogin.setVisibility(View.VISIBLE);
-                                    layoutRegister.setVisibility(View.GONE);
-                                    btnForm.setText(R.string.masuk);
-                                    clearRegisterFields();
-                                    clearLoginFields();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(RegisterLogin.this, "Gagal menyimpan data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                });
-
-                    } else {
-                        Toast.makeText(RegisterLogin.this, "Registrasi gagal: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(RegisterLogin.this, "Registrasi gagal: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private boolean isEmailFormatValid(String email) {
