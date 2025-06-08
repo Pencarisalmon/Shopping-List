@@ -8,83 +8,107 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/history_tvDetailTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#FFFFFF"
             android:padding="16dp"
-            android:text="Detail Riwayat Belanja"
-            android:textColor="@android:color/black"
-            android:textSize="28sp"
-            android:textStyle="bold"/>
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/history_tvNamaDetail"
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back Button"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Detail Barang"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"
-            tools:text="Nama Barang: Laptop ASUS ROG" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/history_tvJumlahDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"
-            tools:text="Jumlah: 1" />
+            <TextView
+                android:id="@+id/history_tvNamaDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"
+                tools:text="Nama Barang: Laptop ASUS ROG" />
 
-        <TextView
-            android:id="@+id/history_tvHargaDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"
-            tools:text="Harga: Rp 15.000.000" />
+            <TextView
+                android:id="@+id/history_tvJumlahDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
+                tools:text="Jumlah: 1" />
 
-        <TextView
-            android:id="@+id/history_tvKategoriDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"
-            tools:text="Kategori: Elektronik" />
+            <TextView
+                android:id="@+id/history_tvHargaDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
+                tools:text="Harga: Rp 15.000.000" />
 
-        <TextView
-            android:id="@+id/history_tvWaktuDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"
-            tools:text="Waktu Belanja: 01/01/2024" />
+            <TextView
+                android:id="@+id/history_tvKategoriDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
+                tools:text="Kategori: Elektronik" />
 
-        <TextView
-            android:id="@+id/history_tvStatusDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="italic"
-            android:layout_marginBottom="24dp"
-            tools:text="Status: Sudah dibeli" />
+            <TextView
+                android:id="@+id/history_tvWaktuDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
+                tools:text="Waktu Belanja: 01/01/2024" />
 
-        <Button
-            android:id="@+id/history_btnPulihkan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pulihkan Status Belum Dibeli"
-            android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/history_tvStatusDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="italic"
+                android:layout_marginBottom="24dp"
+                tools:text="Status: Sudah dibeli" />
 
-        <Button
-            android:id="@+id/history_btnHapus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hapus Belanjaan dari Riwayat"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:textColor="@android:color/white"/>
+            <Button
+                android:id="@+id/history_btnPulihkan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pulihkan Status Belum Dibeli"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/history_btnHapus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hapus Belanjaan dari Riwayat"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@android:color/white"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
