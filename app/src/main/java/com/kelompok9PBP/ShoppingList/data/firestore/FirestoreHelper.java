@@ -13,7 +13,9 @@ import com.google.android.gms.tasks.Task;
 import com.kelompok9PBP.ShoppingList.data.model.Barang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirestoreHelper {
 
@@ -105,4 +107,48 @@ public class FirestoreHelper {
     public Task<Void> deleteDocument(String collectionName, String documentId) {
         return db.collection(collectionName).document(documentId).delete();
     }
+
+    public void getUserProfile(OnSuccessListener<DocumentSnapshot> onSuccess, OnFailureListener onFailure) {
+        if (currentUser == null) {
+            onFailure.onFailure(new Exception("User belum login"));
+            return;
+        }
+
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    public void updateUserProfile(String nama, String tanggalLahir,
+                                  OnSuccessListener<Void> onSuccessListener,
+                                  OnFailureListener onFailureListener) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("nama", nama);
+        updates.put("tanggal_lahir", tanggalLahir);
+
+        db.collection("users").document(uid)
+                .update(updates)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    public void saveUserData(String uid, String nama, String tanggalLahir, String email,
+                             OnSuccessListener<Void> onSuccessListener,
+                             OnFailureListener onFailureListener) {
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("uid", uid);
+        userMap.put("nama", nama);
+        userMap.put("tanggal_lahir", tanggalLahir);
+        userMap.put("email", email);
+
+        db.collection("users").document(uid)
+                .set(userMap)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
 }
