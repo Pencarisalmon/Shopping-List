@@ -100,16 +100,6 @@ public class RegisterLogin extends AppCompatActivity {
         etConfirmPassword.setText("");
     }
 
-    private void switchToLogin() {
-        isRegister = false;
-        loginTabIndicator.setVisibility(View.VISIBLE);
-        registerTabIndicator.setVisibility(View.INVISIBLE);
-        layoutLogin.setVisibility(View.VISIBLE);
-        layoutRegister.setVisibility(View.GONE);
-        btnForm.setText(R.string.masuk);
-        clearRegisterFields();
-    }
-
     private void loginData() {
         String email = etLoginEmail.getText().toString().trim();
         String password = etLoginPassword.getText().toString().trim();
