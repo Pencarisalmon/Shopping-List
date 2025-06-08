@@ -37,7 +37,6 @@ public class AddFragment extends Fragment {
     private AutoCompleteTextView autoCompleteKategori;
     private MaterialButton buttonSimpan;
     private final Calendar myCalendar = Calendar.getInstance();
-
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     String[] kategoriArray = new String[]{"Makanan", "Minuman", "Pakaian", "Elektronik", "Rumah Tangga", "Lainnya"};
@@ -125,11 +124,11 @@ public class AddFragment extends Fragment {
                     String userId = currentUser.getUid();
 
                     Map<String, Object> belanjaan = new HashMap<>();
-                    belanjaan.put("nama_barang", namaBarang);
+                    belanjaan.put("namaBarang", namaBarang);
                     belanjaan.put("jumlah", jumlah);
                     belanjaan.put("kategori", kategori);
-                    belanjaan.put("harga", harga);
-                    belanjaan.put("waktu_belanja", waktuBelanja);
+                    belanjaan.put("hargaSatuan", harga);
+                    belanjaan.put("waktuBelanja", waktuBelanja);
                     belanjaan.put("pending", true);
 
                     db.collection("users")
